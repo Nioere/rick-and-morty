@@ -28,13 +28,44 @@ Class CharacterController extends AbstractController{
     public function list(): JsonResponse
     {
         $characters = $this->entityManager->getRepository(Character::class)->findAll();
-        return $this->json($characters);
+
+        $charactersArray = array_map(function (Character $character) {
+            return [
+                'id' => $character->getId(),
+                'name' => $character->getName(),
+                'status' => $character->getStatus(),
+                'species' => $character->getSpecies(),
+                'type' => $character->getType(),
+                'gender' => $character->getGender(),
+                'origin' => $character->getOrigin(),
+                'location' => $character->getLocation(),
+                'image' => $character->getImage(),
+                'url' => $character->getUrl(),
+                'created' => $character->getCreated()->format('c'),
+            ];
+        }, $characters);
+
+        return $this->json($charactersArray);
     }
 
     #[Route('/{id}', name: 'character-show', methods: ['GET'])]
     public function show(Character $character): JsonResponse
     {
-        return $this->json($character);
+        $characterArray = [
+            'id' => $character->getId(),
+            'name' => $character->getName(),
+            'status' => $character->getStatus(),
+            'species' => $character->getSpecies(),
+            'type' => $character->getType(),
+            'gender' => $character->getGender(),
+            'origin' => $character->getOrigin(),
+            'location' => $character->getLocation(),
+            'image' => $character->getImage(),
+            'url' => $character->getUrl(),
+            'created' => $character->getCreated()->format('c'),
+        ];
+
+        return $this->json($characterArray);
     }
 
     #[Route('', name: 'character-add', methods: ['POST'])]
@@ -64,7 +95,21 @@ Class CharacterController extends AbstractController{
         $this->entityManager->persist($character);
         $this->entityManager->flush();
 
-        return $this->json($character);
+        $characterArray = [
+            'id' => $character->getId(),
+            'name' => $character->getName(),
+            'status' => $character->getStatus(),
+            'species' => $character->getSpecies(),
+            'type' => $character->getType(),
+            'gender' => $character->getGender(),
+            'origin' => $character->getOrigin(),
+            'location' => $character->getLocation(),
+            'image' => $character->getImage(),
+            'url' => $character->getUrl(),
+            'created' => $character->getCreated()->format('c'),
+        ];
+
+        return $this->json($characterArray);
     }
 
 
@@ -92,7 +137,21 @@ Class CharacterController extends AbstractController{
 
         $this->entityManager->flush();
 
-        return $this->json($character);
+        $characterArray = [
+            'id' => $character->getId(),
+            'name' => $character->getName(),
+            'status' => $character->getStatus(),
+            'species' => $character->getSpecies(),
+            'type' => $character->getType(),
+            'gender' => $character->getGender(),
+            'origin' => $character->getOrigin(),
+            'location' => $character->getLocation(),
+            'image' => $character->getImage(),
+            'url' => $character->getUrl(),
+            'created' => $character->getCreated()->format('c'),
+        ];
+
+        return $this->json($characterArray);
     }
 
     #[Route('/{id}', name: 'character-delete', methods: ['DELETE'])]

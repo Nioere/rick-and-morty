@@ -4,6 +4,10 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\JoinColumn;
+
 
 /**
  * @ORM\Entity
@@ -58,7 +62,8 @@ class Character
     private $image;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Episode", mappedBy="characters")
+     * @ORM\ManyToMany(targetEntity="Episode", inversedBy="characters")
+     * @ORM\JoinTable(name="characters_episode")
      */
     private $episodes;
 
