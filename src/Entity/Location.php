@@ -43,11 +43,6 @@ class Location
     private $locationCharacters;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $url;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $created;
@@ -88,11 +83,6 @@ class Location
         return $this->locationCharacters;
     }
 
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
     public function getCreated()
     {
         return $this->created;
@@ -112,11 +102,6 @@ class Location
     public function setDimension($dimension)
     {
         $this->dimension = $dimension;
-    }
-
-    public function setUrl($url)
-    {
-        $this->url = $url;
     }
 
     public function setCreated($created)

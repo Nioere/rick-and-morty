@@ -29,8 +29,7 @@ final class Version20240213123553 extends AbstractMigration
             origin_id INT DEFAULT NULL,
             location_id INT DEFAULT NULL,
             image VARCHAR(255) NOT NULL,
-            url VARCHAR(255) NOT NULL,
-            created TIMESTAMP NOT NULL
+            created TIMESTAMP(6) NOT NULL
         )');
 
         $this->addSql('CREATE TABLE location (
@@ -38,8 +37,7 @@ final class Version20240213123553 extends AbstractMigration
             name VARCHAR(255) NOT NULL,
             type VARCHAR(255) DEFAULT NULL,
             dimension VARCHAR(255) DEFAULT NULL,
-            url VARCHAR(255) NOT NULL,
-            created TIMESTAMP NOT NULL
+            created TIMESTAMP(6) NOT NULL
         )');
 
         $this->addSql('CREATE TABLE episode (
@@ -47,8 +45,7 @@ final class Version20240213123553 extends AbstractMigration
             name VARCHAR(255) NOT NULL,
             air_date VARCHAR(255) NOT NULL,
             episode VARCHAR(255) NOT NULL,
-            url VARCHAR(255) NOT NULL,
-            created TIMESTAMP NOT NULL
+            created TIMESTAMP(6) NOT NULL
         )');
 
         $this->addSql('CREATE TABLE character_episode (

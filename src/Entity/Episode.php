@@ -38,10 +38,6 @@ class Episode
      */
     private $characters;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $url;
 
     /**
      * @ORM\Column(type="datetime")
@@ -78,11 +74,6 @@ class Episode
         return $this->characters;
     }
 
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
     public function getCreated()
     {
         return $this->created;
@@ -102,11 +93,6 @@ class Episode
     public function setEpisode($episode)
     {
         $this->episode = $episode;
-    }
-
-    public function setUrl($url)
-    {
-        $this->url = $url;
     }
 
     public function setCreated($created)

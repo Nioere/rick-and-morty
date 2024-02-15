@@ -6,6 +6,8 @@ namespace App\Controller;
 
 use App\Entity\Character;
 use DateTime;
+use DateTimeZone;
+use \DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,8 +42,8 @@ Class CharacterController extends AbstractController{
                 'origin' => $character->getOrigin(),
                 'location' => $character->getLocation(),
                 'image' => $character->getImage(),
-                'url' => $character->getUrl(),
-                'created' => $character->getCreated()->format('c'),
+                'url' => 'http://localhost:8080/api/character/' . $character->getId(),
+                'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
             ];
         }, $characters);
 
@@ -61,8 +63,8 @@ Class CharacterController extends AbstractController{
             'origin' => $character->getOrigin(),
             'location' => $character->getLocation(),
             'image' => $character->getImage(),
-            'url' => $character->getUrl(),
-            'created' => $character->getCreated()->format('c'),
+            'url' => 'http://localhost:8080/api/character/' . $character->getId(),
+            'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
         ];
 
         return $this->json($characterArray);
@@ -88,8 +90,11 @@ Class CharacterController extends AbstractController{
         }
 
         $character->setImage($data['image']);
-        $character->setUrl($data['url']);
-        $character->setCreated(new \DateTime());
+
+        $microtime = microtime(true);
+        $micro = sprintf("%06d",($microtime - floor($microtime)) * 1000000);
+        $date = DateTimeImmutable::createFromFormat('U.u', sprintf('%d.%s', $microtime, $micro));
+        $character->setCreated($date);
 
 
         $this->entityManager->persist($character);
@@ -105,8 +110,8 @@ Class CharacterController extends AbstractController{
             'origin' => $character->getOrigin(),
             'location' => $character->getLocation(),
             'image' => $character->getImage(),
-            'url' => $character->getUrl(),
-            'created' => $character->getCreated()->format('c'),
+            'url' => 'http://localhost:8080/api/character/' . $character->getId(),
+            'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
         ];
 
         return $this->json($characterArray);
@@ -132,10 +137,14 @@ Class CharacterController extends AbstractController{
         }
 
         $character->setImage($data['image']);
-        $character->setUrl($data['url']);
-        $character->setCreated(new \DateTime());
+
+        $microtime = microtime(true);
+        $micro = sprintf("%06d",($microtime - floor($microtime)) * 1000000);
+        $date = DateTimeImmutable::createFromFormat('U.u', sprintf('%d.%s', $microtime, $micro));
+        $character->setCreated($date);
 
         $this->entityManager->flush();
+
 
         $characterArray = [
             'id' => $character->getId(),
@@ -147,8 +156,8 @@ Class CharacterController extends AbstractController{
             'origin' => $character->getOrigin(),
             'location' => $character->getLocation(),
             'image' => $character->getImage(),
-            'url' => $character->getUrl(),
-            'created' => $character->getCreated()->format('c'),
+            'url' => 'http://localhost:8080/api/character/' . $character->getId(),
+            'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
         ];
 
         return $this->json($characterArray);
