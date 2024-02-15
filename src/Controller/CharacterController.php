@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Character;
+use App\Entity\Location;
 use DateTime;
 use DateTimeZone;
 use \DateTimeImmutable;
@@ -39,8 +40,8 @@ Class CharacterController extends AbstractController{
                 'species' => $character->getSpecies(),
                 'type' => $character->getType(),
                 'gender' => $character->getGender(),
-                'origin' => $character->getOrigin(),
-                'location' => $character->getLocation(),
+                'origin' => $character->getOriginArray(),
+                'location' => $character->getLocationArray(),
                 'image' => $character->getImage(),
                 'url' => 'http://localhost:8080/api/character/' . $character->getId(),
                 'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
@@ -60,8 +61,8 @@ Class CharacterController extends AbstractController{
             'species' => $character->getSpecies(),
             'type' => $character->getType(),
             'gender' => $character->getGender(),
-            'origin' => $character->getOrigin(),
-            'location' => $character->getLocation(),
+            'origin' => $character->getOriginArray(),
+            'location' => $character->getLocationArray(),
             'image' => $character->getImage(),
             'url' => 'http://localhost:8080/api/character/' . $character->getId(),
             'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
@@ -83,10 +84,19 @@ Class CharacterController extends AbstractController{
         $character->setGender($data['gender']);
 
         if (isset($data['origin'])) {
-            $character->setOrigin($data['origin']);
+            $origin = $this->entityManager->getRepository(Location::class)->find($data['origin']);
+            if (!$origin) {
+                throw $this->createNotFoundException('Не найдено локации с ID ' . $data['origin']);
+            }
+            $character->addOrigin($origin);
         }
+
         if (isset($data['location'])) {
-            $character->setLocation($data['location']);
+            $location = $this->entityManager->getRepository(Location::class)->find($data['location']);
+            if (!$location) {
+                throw $this->createNotFoundException('Не найдено локации с ID ' . $data['location']);
+            }
+            $character->addLocation($location);
         }
 
         $character->setImage($data['image']);
@@ -107,8 +117,8 @@ Class CharacterController extends AbstractController{
             'species' => $character->getSpecies(),
             'type' => $character->getType(),
             'gender' => $character->getGender(),
-            'origin' => $character->getOrigin(),
-            'location' => $character->getLocation(),
+            'origin' => $character->getOriginArray(),
+            'location' => $character->getLocationArray(),
             'image' => $character->getImage(),
             'url' => 'http://localhost:8080/api/character/' . $character->getId(),
             'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
@@ -153,8 +163,8 @@ Class CharacterController extends AbstractController{
             'species' => $character->getSpecies(),
             'type' => $character->getType(),
             'gender' => $character->getGender(),
-            'origin' => $character->getOrigin(),
-            'location' => $character->getLocation(),
+            'origin' => $character->getOriginArray(),
+            'location' => $character->getLocationArray(),
             'image' => $character->getImage(),
             'url' => 'http://localhost:8080/api/character/' . $character->getId(),
             'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),

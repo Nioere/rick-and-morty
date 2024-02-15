@@ -33,12 +33,12 @@ class Location
     private $dimension;
 
     /**
-     * @ORM\OneToMany(targetEntity="Character", mappedBy="origin")
+     * @ORM\ManyToMany(targetEntity="Character", mappedBy="origin")
      */
     private $originCharacters;
 
     /**
-     * @ORM\OneToMany(targetEntity="Character", mappedBy="location")
+     * @ORM\ManyToMany(targetEntity="Character", mappedBy="location")
      */
     private $locationCharacters;
 
