@@ -34,7 +34,7 @@ class Episode
 
     /**
      * @ORM\ManyToMany(targetEntity="Character", inversedBy="episodes")
-     * @ORM\JoinTable(name="characters_episodes")
+     * @ORM\JoinTable(name="character_episode")
      */
     private $characters;
 

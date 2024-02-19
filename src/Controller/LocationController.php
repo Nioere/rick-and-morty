@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Location;
+use App\Entity\Character;
 use DateTime;
 use DateTimeZone;
 use \DateTimeImmutable;
@@ -15,6 +16,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
 
 #[Route('/api/location')]
 Class LocationController extends AbstractController{
@@ -38,11 +41,20 @@ Class LocationController extends AbstractController{
         $total = $repository->count([]);
 
         $locationsArray = array_map(function (Location $location) {
+
+            $residents = $location->getResidents();
+            $residentsUrls = [];
+
+            foreach ($residents as $resident) {
+                $residentsUrls[] = 'http://localhost:8080/api/character/' . $resident->getId();
+            }
+
             return [
                 'id' => $location->getId(),
                 'name' => $location->getName(),
                 'type' => $location->getType(),
                 'dimension' => $location->getDimension(),
+                'residents' => $residentsUrls,
                 'url' => 'http://localhost:8080/api/location/' . $location->getId(),
                 'created' => $location->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
             ];
@@ -64,11 +76,19 @@ Class LocationController extends AbstractController{
     #[Route('/{id}', name: 'location-show', methods: ['GET'])]
     public function show(Location $location): JsonResponse
     {
+        $residents = $location->getResidents();
+        $residentsUrls = [];
+
+        foreach ($residents as $resident) {
+            $residentsUrls[] = 'http://localhost:8080/api/character/' . $resident->getId();
+        }
+
         $locationArray = [
             'id' => $location->getId(),
             'name' => $location->getName(),
             'type' => $location->getType(),
             'dimension' => $location->getDimension(),
+            'residents' => $residentsUrls,
             'url' => 'http://localhost:8080/api/location/' . $location->getId(),
             'created' => $location->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
         ];

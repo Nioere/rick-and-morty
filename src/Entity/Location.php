@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity
@@ -33,6 +34,11 @@ class Location
     private $dimension;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Character", mappedBy="location")
+     */
+    private $residents;
+
+    /**
      * @ORM\OneToMany(targetEntity="Character", mappedBy="origin")
      */
     private $originCharacters;
@@ -51,6 +57,7 @@ class Location
     {
         $this->originCharacters = new ArrayCollection();
         $this->locationCharacters = new ArrayCollection();
+        $this->residents = new ArrayCollection();
     }
 
     public function getId()
@@ -108,4 +115,33 @@ class Location
     {
         $this->created = $created;
     }
+
+    public function addResident(Character $character): self
+    {
+        if (!$this->residents->contains($character)) {
+            $this->residents[] = $character;
+            $character->setLocation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeResident(Character $character): self
+    {
+        if ($this->residents->contains($character)) {
+            $this->residents->removeElement($character);
+            if ($character->getLocation() === $this) {
+                $character->setLocation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getResidents(): Collection
+    {
+        return $this->residents;
+    }
+
+
 }

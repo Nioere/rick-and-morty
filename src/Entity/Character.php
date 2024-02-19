@@ -65,7 +65,7 @@ class Character
 
     /**
      * @ORM\ManyToMany(targetEntity="Episode", inversedBy="characters")
-     * @ORM\JoinTable(name="characters_episode")
+     * @ORM\JoinTable(name="character_episode")
      */
     private $episodes;
 
@@ -167,9 +167,13 @@ class Character
         return $this;
     }
 
-    public function setLocation(Location $location): self
+    public function setLocation(?Location $location): self
     {
         $this->location = $location;
+
+        if ($location !== null) {
+            $location->addResident($this);
+        }
 
         return $this;
     }
