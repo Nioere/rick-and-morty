@@ -218,25 +218,22 @@ class Character
         $this->location->removeElement($location);
     }
 
-    public function getOriginArray()
+    public function getOriginData()
     {
-        return $this->origin->map(function (Location $location) {
+        $origin = $this->origin->first();
+        return [
+            'name' => $origin->getName(),
+            'url' => 'http://localhost:8080/api/location/' . $origin->getId(),
+        ];
+    }
+
+    public function getLocationData()
+    {
+        $location = $this->location->first();
             return [
                 'name' => $location->getName(),
                 'url' => 'http://localhost:8080/api/location/' . $location->getId(),
             ];
-        })->toArray();
     }
-
-    public function getLocationArray()
-    {
-        return $this->location->map(function (Location $location) {
-            return [
-                'name' => $location->getName(),
-                'url' => 'http://localhost:8080/api/location/' . $location->getId(),
-            ];
-        })->toArray();
-    }
-
 
 }

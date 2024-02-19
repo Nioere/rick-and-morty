@@ -27,10 +27,33 @@ Class CharacterController extends AbstractController{
         $this->entityManager = $entityManager;
     }
 
-    #[Route('', name: 'character-list', methods: ['GET'])]
-    public function list(): JsonResponse
+    /**
+     * @throws Exception
+     */
+    private function validateData($data): void
     {
-        $characters = $this->entityManager->getRepository(Character::class)->findAll();
+        $validStatuses = ['Alive', 'Dead', 'unknown'];
+        $validGenders = ['Female', 'Male', 'Genderless', 'unknown'];
+
+        if (!in_array($data['status'], $validStatuses)) {
+            throw new \Exception('Введено неправильное значение status');
+        }
+
+        if (!in_array($data['gender'], $validGenders)) {
+            throw new \Exception('Введено неправильное значение status');
+        }
+    }
+
+    #[Route('', name: 'character-list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        $page = $request->query->getInt('page', 1);
+        $limit = 2;
+        $offset = ($page - 1) * $limit;
+
+        $repository = $this->entityManager->getRepository(Character::class);
+        $characters = $repository->findBy([], null, $limit, $offset);
+        $total = $repository->count([]);
 
         $charactersArray = array_map(function (Character $character) {
             return [
@@ -40,15 +63,25 @@ Class CharacterController extends AbstractController{
                 'species' => $character->getSpecies(),
                 'type' => $character->getType(),
                 'gender' => $character->getGender(),
-                'origin' => $character->getOriginArray(),
-                'location' => $character->getLocationArray(),
+                'origin' => $character->getOriginData(),
+                'location' => $character->getLocationData(),
                 'image' => $character->getImage(),
                 'url' => 'http://localhost:8080/api/character/' . $character->getId(),
                 'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
             ];
         }, $characters);
 
-        return $this->json($charactersArray);
+        $response = [
+            'info' => [
+                'count' => $total,
+                'pages' => ceil($total / $limit),
+                'next' => $page < ceil($total / $limit) ? ('http://localhost:8080/api/character?page=' . ($page + 1)) : null,
+                'prev' => $page > 1 ? ('http://localhost:8080/api/character?page=' . ($page - 1)) : null
+            ],
+            'results' => $charactersArray
+        ];
+
+        return new JsonResponse($response);
     }
 
     #[Route('/{id}', name: 'character-show', methods: ['GET'])]
@@ -61,8 +94,8 @@ Class CharacterController extends AbstractController{
             'species' => $character->getSpecies(),
             'type' => $character->getType(),
             'gender' => $character->getGender(),
-            'origin' => $character->getOriginArray(),
-            'location' => $character->getLocationArray(),
+            'origin' => $character->getOriginData(),
+            'location' => $character->getLocationData(),
             'image' => $character->getImage(),
             'url' => 'http://localhost:8080/api/character/' . $character->getId(),
             'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
@@ -75,6 +108,8 @@ Class CharacterController extends AbstractController{
     public function add(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+
+        $this->validateData($data);
 
         $character = new Character();
         $character->setName($data['name']);
@@ -117,8 +152,8 @@ Class CharacterController extends AbstractController{
             'species' => $character->getSpecies(),
             'type' => $character->getType(),
             'gender' => $character->getGender(),
-            'origin' => $character->getOriginArray(),
-            'location' => $character->getLocationArray(),
+            'origin' => $character->getOriginData(),
+            'location' => $character->getLocationData(),
             'image' => $character->getImage(),
             'url' => 'http://localhost:8080/api/character/' . $character->getId(),
             'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
@@ -133,6 +168,8 @@ Class CharacterController extends AbstractController{
     {
         $data = json_decode($request->getContent(), true);
 
+        $this->validateData($data);
+
         $character->setName($data['name']);
         $character->setStatus($data['status']);
         $character->setSpecies($data['species']);
@@ -140,10 +177,19 @@ Class CharacterController extends AbstractController{
         $character->setGender($data['gender']);
 
         if (isset($data['origin'])) {
-            $character->setOrigin($data['origin']);
+            $origin = $this->entityManager->getRepository(Location::class)->find($data['origin']);
+            if (!$origin) {
+                throw $this->createNotFoundException('Не найдено локации с ID ' . $data['origin']);
+            }
+            $character->addOrigin($origin);
         }
+
         if (isset($data['location'])) {
-            $character->setLocation($data['location']);
+            $location = $this->entityManager->getRepository(Location::class)->find($data['location']);
+            if (!$location) {
+                throw $this->createNotFoundException('Не найдено локации с ID ' . $data['location']);
+            }
+            $character->addLocation($location);
         }
 
         $character->setImage($data['image']);
@@ -163,8 +209,8 @@ Class CharacterController extends AbstractController{
             'species' => $character->getSpecies(),
             'type' => $character->getType(),
             'gender' => $character->getGender(),
-            'origin' => $character->getOriginArray(),
-            'location' => $character->getLocationArray(),
+            'origin' => $character->getOriginData(),
+            'location' => $character->getLocationData(),
             'image' => $character->getImage(),
             'url' => 'http://localhost:8080/api/character/' . $character->getId(),
             'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
@@ -182,4 +228,3 @@ Class CharacterController extends AbstractController{
         return $this->json(['message' => 'Персонаж удален']);
     }
 }
-

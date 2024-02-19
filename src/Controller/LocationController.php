@@ -27,9 +27,15 @@ Class LocationController extends AbstractController{
     }
 
     #[Route('', name: 'location-list', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $locations = $this->entityManager->getRepository(Location::class)->findAll();
+        $page = $request->query->getInt('page', 1);
+        $limit = 2;
+        $offset = ($page - 1) * $limit;
+
+        $repository = $this->entityManager->getRepository(Location::class);
+        $locations = $repository->findBy([], null, $limit, $offset);
+        $total = $repository->count([]);
 
         $locationsArray = array_map(function (Location $location) {
             return [
@@ -42,7 +48,17 @@ Class LocationController extends AbstractController{
             ];
         }, $locations);
 
-        return $this->json($locationsArray);
+        $response = [
+            'info' => [
+                'count' => $total,
+                'pages' => ceil($total / $limit),
+                'next' => $page < ceil($total / $limit) ? ('http://localhost:8080/api/location?page=' . ($page + 1)) : null,
+                'prev' => $page > 1 ? ('http://localhost:8080/api/location?page=' . ($page - 1)) : null
+            ],
+            'results' => $locationsArray
+        ];
+
+        return new JsonResponse($response);
     }
 
     #[Route('/{id}', name: 'location-show', methods: ['GET'])]
