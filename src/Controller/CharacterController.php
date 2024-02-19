@@ -123,7 +123,7 @@ Class CharacterController extends AbstractController{
             if (!$origin) {
                 throw $this->createNotFoundException('Не найдено локации с ID ' . $data['origin']);
             }
-            $character->addOrigin($origin);
+            $character->setOrigin($origin);
         }
 
         if (isset($data['location'])) {
@@ -131,7 +131,7 @@ Class CharacterController extends AbstractController{
             if (!$location) {
                 throw $this->createNotFoundException('Не найдено локации с ID ' . $data['location']);
             }
-            $character->addLocation($location);
+            $character->setLocation($location);
         }
 
         $character->setImage($data['image']);
@@ -181,7 +181,7 @@ Class CharacterController extends AbstractController{
             if (!$origin) {
                 throw $this->createNotFoundException('Не найдено локации с ID ' . $data['origin']);
             }
-            $character->addOrigin($origin);
+            $character->setOrigin($origin);
         }
 
         if (isset($data['location'])) {
@@ -189,7 +189,7 @@ Class CharacterController extends AbstractController{
             if (!$location) {
                 throw $this->createNotFoundException('Не найдено локации с ID ' . $data['location']);
             }
-            $character->addLocation($location);
+            $character->setLocation($location);
         }
 
         $character->setImage($data['image']);

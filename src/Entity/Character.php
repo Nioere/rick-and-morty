@@ -47,20 +47,14 @@ class Character
     private $gender;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Location")
-     * @ORM\JoinTable(name="character_origin",
-     *      joinColumns={@ORM\JoinColumn(name="character_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="location_id", referencedColumnName="id")}
-     * )
+     * @ORM\ManyToOne(targetEntity="Location", inversedBy="originCharacters")
+     * @ORM\JoinColumn(name="origin_id", referencedColumnName="id")
      */
     private $origin;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Location")
-     * @ORM\JoinTable(name="character_location",
-     *      joinColumns={@ORM\JoinColumn(name="character_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="location_id", referencedColumnName="id")}
-     * )
+     * @ORM\ManyToOne(targetEntity="Location", inversedBy="locationCharacters")
+     * @ORM\JoinColumn(name="location_id", referencedColumnName="id")
      */
     private $location;
 
@@ -83,8 +77,6 @@ class Character
     public function __construct()
     {
         $this->episodes = new ArrayCollection();
-        $this->origin = new ArrayCollection();
-        $this->location = new ArrayCollection();
     }
 
     public function getId()
@@ -117,12 +109,12 @@ class Character
         return $this->gender;
     }
 
-    public function getOrigin()
+    public function getOrigin(): ?Location
     {
         return $this->origin;
     }
 
-    public function getLocation()
+    public function getLocation(): ?Location
     {
         return $this->location;
     }
@@ -168,14 +160,18 @@ class Character
         $this->gender = $gender;
     }
 
-    public function setOrigin(Location $origin)
+    public function setOrigin(Location $origin): self
     {
         $this->origin = $origin;
+
+        return $this;
     }
 
-    public function setLocation(Location $location)
+    public function setLocation(Location $location): self
     {
         $this->location = $location;
+
+        return $this;
     }
 
     public function setImage($image)
@@ -193,46 +189,20 @@ class Character
         $this->created = $created;
     }
 
-
-    public function addOrigin(Location $origin)
-    {
-        if (!$this->origin->contains($origin)) {
-            $this->origin[] = $origin;
-        }
-    }
-
-    public function removeOrigin(Location $origin)
-    {
-        $this->origin->removeElement($origin);
-    }
-
-    public function addLocation(Location $location)
-    {
-        if (!$this->location->contains($location)) {
-            $this->location[] = $location;
-        }
-    }
-
-    public function removeLocation(Location $location)
-    {
-        $this->location->removeElement($location);
-    }
-
     public function getOriginData()
     {
-        $origin = $this->origin->first();
         return [
-            'name' => $origin->getName(),
-            'url' => 'http://localhost:8080/api/location/' . $origin->getId(),
+            'name' => $this->origin->getName(),
+            'url' => 'http://localhost:8080/api/location/' . $this->origin->getId(),
         ];
+
     }
 
     public function getLocationData()
     {
-        $location = $this->location->first();
             return [
-                'name' => $location->getName(),
-                'url' => 'http://localhost:8080/api/location/' . $location->getId(),
+                'name' => $this->location->getName(),
+                'url' => 'http://localhost:8080/api/location/' . $this->location->getId(),
             ];
     }
 
