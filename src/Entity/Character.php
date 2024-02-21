@@ -47,16 +47,18 @@ class Character
     private $gender;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Location", inversedBy="locationCharacters")
+     * @ORM\JoinColumn(name="location_id", referencedColumnName="id")
+     */
+    private $location;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Location", inversedBy="originCharacters")
      * @ORM\JoinColumn(name="origin_id", referencedColumnName="id")
      */
     private $origin;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Location", inversedBy="locationCharacters")
-     * @ORM\JoinColumn(name="location_id", referencedColumnName="id")
-     */
-    private $location;
+
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -160,7 +162,7 @@ class Character
         $this->gender = $gender;
     }
 
-    public function setOrigin(Location $origin): self
+    public function setOrigin(?Location $origin): self
     {
         $this->origin = $origin;
 
@@ -171,12 +173,9 @@ class Character
     {
         $this->location = $location;
 
-        if ($location !== null) {
-            $location->addResident($this);
-        }
-
         return $this;
     }
+
 
     public function setImage($image)
     {
@@ -193,21 +192,42 @@ class Character
         $this->created = $created;
     }
 
-    public function getOriginData()
-    {
-        return [
-            'name' => $this->origin->getName(),
-            'url' => 'http://localhost:8080/api/location/' . $this->origin->getId(),
-        ];
-
-    }
-
     public function getLocationData()
     {
-            return [
-                'name' => $this->location->getName(),
-                'url' => 'http://localhost:8080/api/location/' . $this->location->getId(),
-            ];
+        return $this->location ? [
+            'name' => $this->location->getName(),
+            'url' => 'http://localhost:8080/api/location/' . $this->location->getId(),
+        ] : null;
+    }
+
+    public function getOriginData()
+    {
+        return $this->origin ? [
+            'name' => $this->origin->getName(),
+            'url' => 'http://localhost:8080/api/location/' . $this->origin->getId(),
+        ] : null;
+    }
+
+
+
+    public function addEpisode(Episode $episode): self
+    {
+        if (!$this->episodes->contains($episode)) {
+            $this->episodes[] = $episode;
+        }
+
+        return $this;
+    }
+
+
+    public function removeEpisode(Episode $episode): self
+    {
+        if ($this->episodes->contains($episode)) {
+            $this->episodes->removeElement($episode);
+            $episode->removeCharacter($this);
+        }
+
+        return $this;
     }
 
 }

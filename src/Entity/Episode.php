@@ -99,4 +99,24 @@ class Episode
     {
         $this->created = $created;
     }
+
+    public function addCharacter(Character $character): self
+    {
+        if (!$this->characters->contains($character)) {
+            $this->characters[] = $character;
+        }
+
+        return $this;
+    }
+
+
+    public function removeCharacter(Character $character): self
+    {
+        if ($this->characters->contains($character)) {
+            $this->characters->removeElement($character);
+            $character->removeEpisode($this);
+        }
+
+        return $this;
+    }
 }

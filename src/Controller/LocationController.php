@@ -155,11 +155,28 @@ Class LocationController extends AbstractController{
     }
 
     #[Route('/{id}', name: 'location-delete', methods: ['DELETE'])]
-    public function delete(Location $location): JsonResponse
+    public function delete(int $id): JsonResponse
     {
+        $location = $this->entityManager->getRepository(Location::class)->find($id);
+
+        if (!$location) {
+            return $this->json(['message' => 'Локация не найдена'], 404);
+        }
+
+        $charactersWithLocation = $this->entityManager->getRepository(Character::class)->findBy(['location' => $location]);
+        foreach ($charactersWithLocation as $character) {
+            $character->setLocation(null);
+        }
+
+        $charactersWithOrigin = $this->entityManager->getRepository(Character::class)->findBy(['origin' => $location]);
+        foreach ($charactersWithOrigin as $character) {
+            $character->setOrigin(null);
+        }
+
         $this->entityManager->remove($location);
         $this->entityManager->flush();
 
         return $this->json(['message' => 'Локация удалена']);
     }
+
 }
