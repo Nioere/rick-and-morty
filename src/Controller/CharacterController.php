@@ -91,7 +91,7 @@ Class CharacterController extends AbstractController{
         return new JsonResponse($response);
     }
 
-    #[Route('/{id}', name: 'character-show', methods: ['GET'])]
+    #[Route('/{id}', name: 'character-show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show($id): JsonResponse
     {
         $character = $this->entityManager->getRepository(Character::class)->find($id);
@@ -121,6 +121,38 @@ Class CharacterController extends AbstractController{
         ];
 
         return $this->json($characterArray);
+    }
+
+    #[Route('/{ids}', name: 'character-multiple', methods: ['GET'], requirements: ['ids' => '\d+(,\d+)*'])]
+    public function showMultiple(string $ids): JsonResponse
+    {
+        $idsArray = explode(',', $ids);
+        $repository = $this->entityManager->getRepository(Character::class);
+        $characters = $repository->findBy(['id' => $idsArray]);
+
+        $charactersArray = array_map(function (Character $character) {
+            $episodes = $character->getEpisodes();
+            $episodesUrls = array_map(function (Episode $episode) {
+                return $this->generateUrl('episode-show', ['id' => $episode->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+            }, $episodes->toArray());
+
+            return [
+                'id' => $character->getId(),
+                'name' => $character->getName(),
+                'status' => $character->getStatus(),
+                'species' => $character->getSpecies(),
+                'type' => $character->getType(),
+                'gender' => $character->getGender(),
+                'origin' => $character->getOriginData(),
+                'location' => $character->getLocationData(),
+                'image' => $character->getImage(),
+                'episodes' => $episodesUrls,
+                'url' => 'http://localhost:8080/api/character/' . $character->getId(),
+                'created' => $character->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
+            ];
+        }, $characters);
+
+        return $this->json($charactersArray);
     }
 
 

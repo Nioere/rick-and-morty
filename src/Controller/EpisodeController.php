@@ -66,7 +66,7 @@ class EpisodeController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/{id}', name: 'episode-show', methods: ['GET'])]
+    #[Route('/{id}', name: 'episode-show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Episode $episode): JsonResponse
     {
         $characters = $episode->getCharacters();
@@ -88,6 +88,36 @@ class EpisodeController extends AbstractController
 
         return $this->json($episodeArray);
     }
+
+    #[Route('/{ids}', name: 'episode-multiple', methods: ['GET'], requirements: ['ids' => '\d+(,\d+)*'])]
+    public function showMultiple(string $ids): JsonResponse
+    {
+        $idsArray = explode(',', $ids);
+        $repository = $this->entityManager->getRepository(Episode::class);
+        $episodes = $repository->findBy(['id' => $idsArray]);
+
+        $episodesArray = array_map(function (Episode $episode) {
+            $characters = $episode->getCharacters();
+            $charactersUrls = [];
+
+            foreach ($characters as $character) {
+                $charactersUrls[] = 'http://localhost:8080/api/character/' . $character->getId();
+            }
+
+            return [
+                'id' => $episode->getId(),
+                'name' => $episode->getName(),
+                'air_date' => $episode->getAirDate(),
+                'episode' => $episode->getEpisode(),
+                'characters' => $charactersUrls,
+                'url' => 'http://localhost:8080/api/episode/' . $episode->getId(),
+                'created' => $episode->getCreated()->format('Y-m-d\TH:i:s.u\Z'),
+            ];
+        }, $episodes);
+
+        return $this->json($episodesArray);
+    }
+
 
     #[Route('', name: 'episode-add', methods: ['POST'])]
     public function add(Request $request): JsonResponse
